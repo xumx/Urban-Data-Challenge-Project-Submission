@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Geneva Traffic Analysis</title>
+    
+    <link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="src/cartodb.css">
+    
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="src/jquery.transit.min.js"></script>
+    <script src="src/raphael-min.js"></script>
+    <script src="src/cartodb.js"></script>
+    <!-- // <script src="src/wax.g.js"></script> -->
+    <!-- // <script src="src/cartodb-gmapsv3.js"></script> -->
+    <script src="src/dat.gui.min.js"></script>
+    <script src="src/underscore-min.js"></script>
+    <script src="src/backbone.js"></script>
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="src/class.js"></script>
+    <script src="src/backbone.cartodb.js"></script>
+    <script src="src/canvas_tile_layer.js"></script>
+    <script src="src/grid_layer.js"></script>
+    <script src="src/torque.js"></script>
+
+    <!-- Earth -->
+    <script src="https://www.google.com/jsapi"></script>
+    <script src="src/geplugin-helpers.js"></script>
+    <script src="src/math3d.js"></script>
+    <script src="src/simulator.js"></script>
+    <script src="src/index.js"></script>
+    <script src="src/data.js"></script>
+
+    <script src="main.js"></script>
+    
+</head>
+<style>
+
+body {
+    background-color: #191D21;
+    perspective: 1000;
+    -moz-perspective: 1000;
+    -webkit-perspective: 1000; /* Safari and Chrome */
+}
+
+#map_canvas {
+    transform-origin: 50% 100%;
+    -moz-transform-origin: 50% 100%;
+    -webkit-transform-origin: 50% 100%;
+
+    /*transform-style: preserve-3d;*/
+    /*-webkit-transform-style: preserve-3d;*/
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.clearfix:before,
+.clearfix:after {
+  content: ".";    
+  display: block;    
+  height: 0;    
+  overflow: hidden; 
+}
+.clearfix:after {clear: both;}
+
+.stop_volume {
+    transform-origin: 50% 100%;
+    -moz-transform-origin: 50% 100%;
+    -webkit-transform-origin: 50% 100%;
+
+    transform:rotateX(-45deg);
+    -moz-transform:rotateX(-45deg);
+    -webkit-transform:rotateX(-45deg);
+}
+
+#earth_canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+}
+
+.axis {
+    font-size: 10px;
+    stroke: #FFF;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  shape-rendering: crispEdges;
+}
+
+/*.x.axis path {
+  display: none;
+}*/
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+#graph_container {
+    position: absolute;
+    bottom: 0px;
+    left: 40px;
+    z-index: 1000;
+}
+
+</style>
+<body onload="initialize()">
+    <div id="map_canvas" class="clearfix"></div>
+    <div id="earth_canvas"></div>
+    <div id="graph_container" style="display:none;">
+        <div id="graph"></div>
+    </div>
+    <div id="clock_id" class="torque_time"></div>
+    <div class="torque_subs"></div>
+</body>
+</html>
