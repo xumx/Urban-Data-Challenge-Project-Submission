@@ -14,7 +14,7 @@ function initialize(argument) {
 	feature2.pullPassengerData();
 	draw_graph();
 	draw_clock();
-	// initializeEarth();
+	initializeEarth();
 }
 
 var feature1 = {
@@ -51,7 +51,6 @@ var feature2 = {
 	showVolume: false,
 	markerArray: [],
 	passengerData: {},
-
 	'Visualize Volume': function() {
 		$('#map_canvas').transition({
 			rotateX: '45deg',
@@ -59,6 +58,11 @@ var feature2 = {
 		});
 
 		feature2.showVolume = true;
+
+		if (!feature1.torque.running) {
+			feature1.torque.running = true
+			feature1.torque.play();
+		}
 	},
 	'Reset View': function() {
 		$('#map_canvas').transition({
@@ -151,11 +155,14 @@ var feature3 = {
 	'Camera Distance': 300,
 	uniqueRouteCode: ["1", "2", "03", "5", "04", "06", "07", "08", "10", "11", "12", "12B", "14", "19", "21", "22", "23", "28", "31", "32", "33", "34", "35", "36", "41", "41S", "42", "43", "44", "45", "46", "47", "51", "53", "54", "57", "80", "81", "84", "85", "86", "9", "96", "A", "B", "C", "D", "DN", "E", "Eb", "F", "G", "Gb", "K", "L", "M1", "M2", "M3", "M4", "NA", "NC", "ND", "NE", "NJ", "NK", "NM", "NO", "NP", "NS", "NT", "NV", "O", "S", "T", "TAC1", "TAC2", "TAC3", "TAC4", "TAC5", "TACD3", "V", "VB", "W", "X", "Y", "Z"],
 	Simulate: function() {
+
 		$('#map_canvas').transition({
-			rotateX:'90deg'
-		}, function () {
+			rotateX: '90deg'
+		}, function() {
 			this.hide();
+			feature1.torque.running = false;
 		});
+
 
 		$('#clock_id').hide();
 		$('#graph_container').hide();
@@ -299,10 +306,10 @@ var feature3 = {
 			console.log('sql error fetchStopsOnRoute');
 		});
 	},
-	Reset:function () {
+	Reset: function() {
 		$('#clock_id').show();
 		$('#map_canvas').show().transition({
-			rotateX:'0deg'
+			rotateX: '0deg'
 		});
 
 		map.setZoom(12);
@@ -409,6 +416,32 @@ function initializeToggle(TorqueOptions) {
 	});
 
 	folder3.add(feature3, 'Reset');
+
+
+	//Tutorial Navigation
+	$('#step1_btn').click(function () {
+		folder1.open();
+		$('#step1').addClass('animated');
+	});
+
+	$('#step2_btn').click(function () {
+		$('#step2').addClass('animated');
+		folder1.close();
+		folder2.open();
+	});
+
+	$('#step3_btn').click(function () {
+		$('#step3').addClass('animated');
+		folder2.close();
+		folder3.open();
+	});
+
+	$('#step4_btn').click(function () {
+		$('#step4').addClass('animated');
+		folder1.open();
+		folder2.open();
+		folder3.open();
+	});
 }
 
 function draw_graph() {
@@ -424,7 +457,8 @@ function draw_graph() {
 		left: 40
 	}
 
-	w = 960
+	w = $('body').innerWidth() - 200
+
 	h = 140
 
 	var color = d3.scale.category10();
@@ -499,14 +533,14 @@ function draw_graph() {
 			.datum(data)
 			.attr("class", "line")
 			.attr("d", line)
-			.style("stroke", "green");
+			.style("stroke", "#61ABD4");
 
 		//Alight
 		svg.append("path")
 			.datum(data)
 			.attr("class", "line")
 			.attr("d", line2)
-			.style("stroke", "red");
+			.style("stroke", "#D24367");
 
 		// svg.append("text")
 		// .datum(function(d) {

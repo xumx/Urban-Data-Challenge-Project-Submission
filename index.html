@@ -8,18 +8,18 @@
     <link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet"/>
 
     <link rel="stylesheet" href="src/cartodb.css">
+    <link rel="stylesheet" href="src/animate.css">
     
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="src/jquery.transit.min.js"></script>
-    <script src="src/raphael-min.js"></script>
     <script src="src/cartodb.js"></script>
-    <!-- // <script src="src/wax.g.js"></script> -->
-    <!-- // <script src="src/cartodb-gmapsv3.js"></script> -->
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="src/jquery.transit.min.js"></script>
+    
+    <script src="src/raphael-min.js"></script>
     <script src="src/dat.gui.min.js"></script>
     <script src="src/underscore-min.js"></script>
     <script src="src/backbone.js"></script>
-    <script src="http://d3js.org/d3.v3.js"></script>
     <script src="src/class.js"></script>
     <script src="src/backbone.cartodb.js"></script>
     <script src="src/canvas_tile_layer.js"></script>
@@ -32,7 +32,6 @@
     <script src="src/math3d.js"></script>
     <script src="src/simulator.js"></script>
     <script src="src/index.js"></script>
-    <script src="src/data.js"></script>
 
     <script src="main.js"></script>
     
@@ -43,16 +42,20 @@ body {
     background-color: #191D21;
     perspective: 1000;
     -moz-perspective: 1000;
-    -webkit-perspective: 1000; /* Safari and Chrome */
+    -webkit-perspective: 1000;
+}
+
+#map_canvas, #map_canvas div:not(.stop_volume) {
+    overflow: visible !important;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
 }
 
 #map_canvas {
+    background-color: transparent !important; 
     transform-origin: 50% 100%;
     -moz-transform-origin: 50% 100%;
     -webkit-transform-origin: 50% 100%;
-
-    /*transform-style: preserve-3d;*/
-    /*-webkit-transform-style: preserve-3d;*/
 
     position: fixed;
     top: 0;
@@ -60,15 +63,6 @@ body {
     height: 100%;
     width: 100%;
 }
-
-.clearfix:before,
-.clearfix:after {
-  content: ".";    
-  display: block;    
-  height: 0;    
-  overflow: hidden; 
-}
-.clearfix:after {clear: both;}
 
 .stop_volume {
     transform-origin: 50% 100%;
@@ -100,10 +94,6 @@ body {
   shape-rendering: crispEdges;
 }
 
-/*.x.axis path {
-  display: none;
-}*/
-
 .line {
   fill: none;
   stroke: steelblue;
@@ -117,14 +107,105 @@ body {
     z-index: 1000;
 }
 
+.intro {
+    width: 550px;
+    height: 280px;
+    padding: 30px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow:0px 0px 4px rgba(0,0,0,0.7);
+
+    font-family: "Proxima Nova Regular","Helvetica Neue",Arial,Helvetica,sans-serif;
+    font-weight: 400;
+    font-size: 1em;
+    font-style: normal;
+    line-height: 1.4em;
+
+    display: block;
+    position: fixed;
+    opacity: 1;
+    z-index: 11000;
+    left: 50%;
+    margin-left: -330px;
+    top: 100px;
+}
+
+#lean_overlay a {
+    color:#53A1D0;
+    text-decoration: none !important;
+}
+
+.gmnoprint, .gmnoscreen {
+    display: none;
+}
+
 </style>
 <body onload="initialize()">
-    <div id="map_canvas" class="clearfix"></div>
+    <section>
+        <div class="intro bounceOutLeft" id="step1" style="z-index:4">
+            <a href="#" id="step1_btn" style="float:right"><img src="img/next.png"  alt=""></a>
+            <p style="color:#53A1D0">
+                
+                'A Day in Geneva' uses CartoDB to transform transportation dataset into a datacube format, which allows us to render big, timeseries data in the client.
+            </p>
+            <p>    
+                Special thanks to CartoDB for supporting us with their super awesome GIS backend. This project wouldn't be possible without their platform. 
+            </p>
+
+            <p>
+                Brought to you by: <br>
+                <a href="http://xumx.me" title="">Max Xu</a> | <a href="#" title="">Adrian Vu</a> | <a href="#" title="">Choong Zi Xin</a>
+            </p>
+
+            Browser Support: 
+            <img src="img/chrome.png" alt="" height="24px" width="24px">
+            <img src="img/safari.jpg" height="25px" width="25px">
+
+            
+        </div>
+        <div class="intro bounceOutLeft hidden" id="step2" style="z-index:3">
+            <a href="#" id="step2_btn" style="float:right"><img src="img/next.png"  alt=""></a>
+            <p style="color:#53A1D0">
+                Feature 1: Feel the pulse
+                <hr>
+            </p>
+            <p>  
+                A dynamic and interactive visualization of the public transportation network in Geneva.
+                <br>
+                Use the controls on the top right to adjust the playback speed and explore the timeseries.
+            </p>
+        </div>
+        <div class="intro bounceOutLeft hidden" id="step3" style="z-index:2">
+            <a href="#" id="step3_btn" style="float:right"><img src="img/next.png"  alt=""></a>
+            <p style="color:#53A1D0">
+                Feature 2: See the impact
+                <hr>
+            </p>
+            <p>  
+                A 3D visualization of the cumulative traffic volume in each tram stop. 
+
+                <br>
+                <span style="color:#D24367">Red</span> lines represent a station with more citizens alighting than boarding.
+                <br>
+                <span style="color:#61ABD4">Blue</span> lines represent a station with more people boarding the public transport.
+            </p>
+        </div>
+        <div class="intro bounceOutLeft hidden" id="step4" style="z-index:1">
+            <a href="#" id="step4_btn" style="float:right"><img src="img/next.png"  alt=""></a>
+            <p style="color:#53A1D0">
+                Feature 3: 
+                <hr>
+            </p>
+            <p>  
+                Plot selected routes and station names on the map. Followed by a Google Earth simulation of the tram route.
+            </p>
+        </div>  
+    </section>  
+    <div id="map_canvas"></div>
     <div id="earth_canvas"></div>
     <div id="graph_container" style="display:none;">
         <div id="graph"></div>
     </div>
     <div id="clock_id" class="torque_time"></div>
-    <div class="torque_subs"></div>
 </body>
 </html>
