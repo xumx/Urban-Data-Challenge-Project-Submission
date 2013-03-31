@@ -260,8 +260,6 @@ TimePlayer.prototype.render_time = function(tile, coord, zoom) {
 	var offset = Math.floor((pixel_size - 1) / 2);
 	var tau = Math.PI * 2;
 
-
-
 	// memoize sprite canvases
 	if (self.sprite_1 == undefined) {
 		self.sprite_1 = [];

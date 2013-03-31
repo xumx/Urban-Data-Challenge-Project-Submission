@@ -3,17 +3,18 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-    <title>Geneva Traffic Analysis</title>
+    <title>A City's Heartbeat - Geneva</title>
     
     <link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet"/>
 
     <link rel="stylesheet" href="src/cartodb.css">
     <link rel="stylesheet" href="src/animate.css">
+    <link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
     
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="src/cartodb.js"></script>
     <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="src/cartodb.js"></script>
     <script src="src/jquery.transit.min.js"></script>
     
     <script src="src/raphael-min.js"></script>
@@ -34,12 +35,11 @@
     <script src="src/index.js"></script>
 
     <script src="main.js"></script>
-    
 </head>
 <style>
 
 body {
-    background-color: #191D21;
+    background-color: #EDEDED;
     perspective: 1000;
     -moz-perspective: 1000;
     -webkit-perspective: 1000;
@@ -84,19 +84,17 @@ body {
 }
 
 .axis {
-    font-size: 10px;
-    stroke: #FFF;
+    font-size: 12px;
+    stroke: #71BBE4;
 }
 
 .axis path,
 .axis line {
-  fill: none;
-  shape-rendering: crispEdges;
+    fill: none;
 }
 
 .line {
   fill: none;
-  stroke: steelblue;
   stroke-width: 1.5px;
 }
 
@@ -109,7 +107,7 @@ body {
 
 .intro {
     width: 550px;
-    height: 280px;
+    height: 200px;
     padding: 30px;
     background: #fff;
     border-radius: 5px;
@@ -130,31 +128,39 @@ body {
     top: 100px;
 }
 
-#lean_overlay a {
+a:hover, a:visited, a:link, a:active
+{
     color:#53A1D0;
-    text-decoration: none !important;
+    text-decoration: none;
 }
 
 .gmnoprint, .gmnoscreen {
     display: none;
 }
 
+#clock_string {
+    position:absolute;
+    font-size: 0.8em;
+    top: -20px;
+    left: 40px;
+    text-align: center;
+}
+
 </style>
 <body onload="initialize()">
     <section>
-        <div class="intro bounceOutLeft" id="step1" style="z-index:4">
+        <div class="intro bounceOutLeft" id="step1" style="z-index:4; height: 250px;">
             <a href="#" id="step1_btn" style="float:right"><img src="img/next.png"  alt=""></a>
-            <p style="color:#53A1D0">
-                
-                'A Day in Geneva' uses CartoDB to transform transportation dataset into a datacube format, which allows us to render big, timeseries data in the client.
+            <p>
+                <span style="font-size:2em; color: #D24367; font-family: 'Oswald', sans-serif;">A City's Heartbeat </span> uses CartoDB to transform transportation dataset into a datacube format, which allows us to render big, timeseries data in the client.
             </p>
             <p>    
-                Special thanks to CartoDB for supporting us with their super awesome GIS backend. This project wouldn't be possible without their platform. 
+                Special thanks to <a href="http://cartodb.com" title="">CartoDB</a> for supporting us with their super awesome GIS backend. This project wouldn't be possible without their platform. 
             </p>
 
             <p>
                 Brought to you by: <br>
-                <a href="http://xumx.me" title="">Max Xu</a> | <a href="#" title="">Adrian Vu</a> | <a href="#" title="">Choong Zi Xin</a>
+                <a href="http://xumx.me" title="">Max Xu</a> | <a href="http://adrianvu.sg/" title="">Adrian Vu</a> | <a href="https://www.facebook.com/zixin.chong" title="">Zi Xin Chong</a>
             </p>
 
             Browser Support: 
@@ -165,47 +171,54 @@ body {
         </div>
         <div class="intro bounceOutLeft hidden" id="step2" style="z-index:3">
             <a href="#" id="step2_btn" style="float:right"><img src="img/next.png"  alt=""></a>
-            <p style="color:#53A1D0">
+            <h3 style="color:#53A1D0">
                 Feature 1: Feel the pulse
                 <hr>
-            </p>
+            </h3>
             <p>  
                 A dynamic and interactive visualization of the public transportation network in Geneva.
-                <br>
-                Use the controls on the top right to adjust the playback speed and explore the timeseries.
+                
+                Feel free to pan around the map and use the controls on the right to adjust the playback speed.
             </p>
         </div>
         <div class="intro bounceOutLeft hidden" id="step3" style="z-index:2">
             <a href="#" id="step3_btn" style="float:right"><img src="img/next.png"  alt=""></a>
-            <p style="color:#53A1D0">
-                Feature 2: See the impact
+            <h3 style="color:#53A1D0">
+                Feature 2: Check the blood pressure
                 <hr>
-            </p>
+            </h3>
             <p>  
-                A 3D visualization of the cumulative traffic volume in each tram stop. 
+                A 3D visualization of the <em><b>cumulative</b></em> traffic volume in each tram stop. While the Line graph uses a 'sliding window' plot to show the total passenger traffic within a 10 minute gap.
 
-                <br>
-                <span style="color:#D24367">Red</span> lines represent a station with more citizens alighting than boarding.
-                <br>
-                <span style="color:#61ABD4">Blue</span> lines represent a station with more people boarding the public transport.
+                <p>
+                    <span style="color:#D24367">Red</span> lines represent alighting count
+                    <br>
+                    <span style="color:#61ABD4">Blue</span> lines represent boarding count
+                </p>
             </p>
         </div>
         <div class="intro bounceOutLeft hidden" id="step4" style="z-index:1">
             <a href="#" id="step4_btn" style="float:right"><img src="img/next.png"  alt=""></a>
-            <p style="color:#53A1D0">
-                Feature 3: 
+            <h3 style="color:#53A1D0">
+                Feature 3: Zoom in
                 <hr>
-            </p>
+            </h3>
             <p>  
-                Plot selected routes and station names on the map. Followed by a Google Earth simulation of the tram route.
+                Plots selected route and station names on the map for you to gain a bird's-eye view. You can also explore the selected tram route through a realistic Google Earth simulation.
             </p>
-        </div>  
-    </section>  
+            <p>
+                And don't forget that you can mix and match all three features to get the view you want!
+            </p>
+        </div>
+    </section>
+
     <div id="map_canvas"></div>
     <div id="earth_canvas"></div>
-    <div id="graph_container" style="display:none;">
+    <div id="graph_container" style="display:none">
         <div id="graph"></div>
     </div>
-    <div id="clock_id" class="torque_time"></div>
+    <div id="clock_id" class="torque_time">
+        <div id="clock_string"></div>
+    </div>
 </body>
 </html>

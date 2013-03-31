@@ -1,13 +1,12 @@
-DDSimulator.MODEL_URL = 'http://localhost:3333/tram/doc.kml';
+DDSimulator.MODEL_URL = 'http://xumx.me/geospatial/tram/doc.kml';
 
 var dev = {};
-
 var map;
 var sql = new cartodb.SQL({
 	user: 'xumx'
 });
 
-google.load('earth', '1.x')
+google.load('earth', '1.x');
 
 function initialize(argument) {
 	initializeMap(initializeToggle);
@@ -15,15 +14,16 @@ function initialize(argument) {
 	draw_graph();
 	draw_clock();
 	initializeEarth();
+	$('#earth_canvas').css('top' ,'-2000px');
 }
 
 var feature1 = {
 	torque: null,
 	'Visualize Traffic': function() {
-		feature1.torque.pause()
+		feature1.torque.pause();
 	},
 	Pause: function() {
-		feature1.torque.pause()
+		feature1.torque.pause();
 	},
 	'Show/Hide Routes': function() {
 		if (map.overlayMapTypes.getAt(1)) {
@@ -41,9 +41,6 @@ var feature1 = {
 				map.overlayMapTypes.setAt(1, layer);
 			});
 		}
-	},
-	'Show/Hide Graph': function() {
-		$('#graph_container').toggle();
 	}
 }
 
@@ -52,6 +49,8 @@ var feature2 = {
 	markerArray: [],
 	passengerData: {},
 	'Visualize Volume': function() {
+		$('#graph_container').show();
+
 		$('#map_canvas').transition({
 			rotateX: '45deg',
 			duration: 4000
@@ -63,6 +62,9 @@ var feature2 = {
 			feature1.torque.running = true
 			feature1.torque.play();
 		}
+	},
+	'Show/Hide Graph': function() {
+		$('#graph_container').toggle();
 	},
 	'Reset View': function() {
 		$('#map_canvas').transition({
@@ -112,29 +114,39 @@ var feature2 = {
 			feature2.frame = feature2.time.toISOString();
 		}
 
+		var bounds = map.getBounds();
 		var frame = feature2.passengerData[feature2.time.toISOString()];
 
 		if (frame == undefined) {
 			console.log(feature2.time.toISOString());
 		} else {
-
-
 			for (var i = 0; i < frame.length; i++) {
 				var stop = frame[i];
-				var exist = false;
 
-				for (var j = 0; j < feature2.markerArray.length; j++) {
-					if (feature2.markerArray[j].stopcode == stop.stopcode) {
-						exist = true;
-						feature2.markerArray[j].setHeight(stop.volume);
-						break;
+				if (bounds.contains(new google.maps.LatLng(stop.y, stop.x))) {
+					var exist = false;
+
+					for (var j = 0; j < feature2.markerArray.length; j++) {
+						if (feature2.markerArray[j].stopcode == stop.stopcode) {
+							exist = true;
+							feature2.markerArray[j].setHeight(stop.volume);
+							break;
+						}
 					}
-				}
 
-				if (!exist) {
-					if (stop.volume !== 0) {
-						overlay = new CustomMarker(map, new google.maps.LatLng(stop.y, stop.x), stop.stopcode, stop.volume);
-						feature2.markerArray.push(overlay);
+					if (!exist) {
+						if (stop.volume !== 0) {
+							overlay = new CustomMarker(map, new google.maps.LatLng(stop.y, stop.x), stop.stopcode, stop.volume);
+							feature2.markerArray.push(overlay);
+						}
+					}
+				} else {
+					for (var j = 0; j < feature2.markerArray.length; j++) {
+						if (feature2.markerArray[j].stopcode == stop.stopcode) {
+							feature2.markerArray[j].setMap(null);
+							feature2.markerArray.splice(j,1);
+							break;
+						}
 					}
 				}
 			}
@@ -145,6 +157,7 @@ var feature2 = {
 			feature2.markerArray[i].setMap(null);
 		}
 
+		feature2.markerArray = [];
 		feature2.showVolume = false;
 	}
 }
@@ -156,17 +169,17 @@ var feature3 = {
 	uniqueRouteCode: ["1", "2", "03", "5", "04", "06", "07", "08", "10", "11", "12", "12B", "14", "19", "21", "22", "23", "28", "31", "32", "33", "34", "35", "36", "41", "41S", "42", "43", "44", "45", "46", "47", "51", "53", "54", "57", "80", "81", "84", "85", "86", "9", "96", "A", "B", "C", "D", "DN", "E", "Eb", "F", "G", "Gb", "K", "L", "M1", "M2", "M3", "M4", "NA", "NC", "ND", "NE", "NJ", "NK", "NM", "NO", "NP", "NS", "NT", "NV", "O", "S", "T", "TAC1", "TAC2", "TAC3", "TAC4", "TAC5", "TACD3", "V", "VB", "W", "X", "Y", "Z"],
 	Simulate: function() {
 
+		$('#earth_canvas').css('top' ,'0px');
 		$('#map_canvas').transition({
 			rotateX: '90deg'
 		}, function() {
-			this.hide();
+			feature2.Clear();
 			feature1.torque.running = false;
+			this.hide();
 		});
-
 
 		$('#clock_id').hide();
 		$('#graph_container').hide();
-		$('#earth_canvas').show();
 
 		var children = DS_ge.getFeatures().getChildNodes();
 		for (var i = 0; i < children.getLength(); i++) {
@@ -284,6 +297,8 @@ var feature3 = {
 				}
 			}
 
+			DS_path = [];
+
 			for (var i = 0; i < pointArray.length; i++) {
 				var loc = pointArray[i];
 				var distance = (i == pointArray.length - 1) ? 0 : DS_geHelpers.distance(loc, pointArray[i + 1]);
@@ -308,12 +323,16 @@ var feature3 = {
 	},
 	Reset: function() {
 		$('#clock_id').show();
+		
 		$('#map_canvas').show().transition({
 			rotateX: '0deg'
 		});
-
 		map.setZoom(12);
 		map.setCenter(new google.maps.LatLng(46.20, 6.15));
+
+		if (DS_simulator) DS_simulator.destroy();
+		$('#earth_canvas').css('top' ,'-2000px');
+
 		map.overlayMapTypes.removeAt(1);
 		map.overlayMapTypes.removeAt(2);
 	}
@@ -351,8 +370,8 @@ function initializeMap(callback) {
 		blendmode: 'lighter',
 		point_type: 'circle',
 		resolution: 1,
-		fps: 15,
-		steps: 1440,
+		fps: 13,
+		steps: 2500,
 		fitbounds: false,
 		cumulative: false,
 		trails: true,
@@ -391,11 +410,11 @@ function initializeToggle(TorqueOptions) {
 	folder1.add(feature1, 'Visualize Traffic');
 	folder1.add(feature1, 'Pause');
 	folder1.add(feature1, 'Show/Hide Routes');
-	folder1.add(feature1, 'Show/Hide Graph');
 	folder1.add(TorqueOptions, 'fps', 1, 48, false).listen();
 
 	var folder2 = toggle.addFolder('Visualize Passenger Volume by Stop');
 	folder2.add(feature2, 'Visualize Volume');
+	folder2.add(feature2, 'Show/Hide Graph');
 	folder2.add(feature2, 'Reset View');
 	folder2.add(feature2, 'Clear');
 
@@ -419,28 +438,28 @@ function initializeToggle(TorqueOptions) {
 
 
 	//Tutorial Navigation
-	$('#step1_btn').click(function () {
+	$('#step1_btn').click(function() {
 		folder1.open();
 		$('#step1').addClass('animated');
 	});
 
-	$('#step2_btn').click(function () {
+	$('#step2_btn').click(function() {
 		$('#step2').addClass('animated');
 		folder1.close();
 		folder2.open();
 	});
 
-	$('#step3_btn').click(function () {
+	$('#step3_btn').click(function() {
 		$('#step3').addClass('animated');
 		folder2.close();
 		folder3.open();
 	});
 
-	$('#step4_btn').click(function () {
+	$('#step4_btn').click(function() {
 		$('#step4').addClass('animated');
 		folder1.open();
-		folder2.open();
-		folder3.open();
+		folder2.close();
+		folder3.close();
 	});
 }
 
@@ -458,7 +477,6 @@ function draw_graph() {
 	}
 
 	w = $('body').innerWidth() - 200
-
 	h = 140
 
 	var color = d3.scale.category10();
@@ -514,19 +532,14 @@ function draw_graph() {
 		y.domain([0, maxY]);
 
 		svg.append("g")
-			.attr("class", "x axis")
-			.attr("transform", "translate(0," + h + ")")
-			.call(xAxis)
-
-		svg.append("g")
 			.attr("class", "y axis")
 			.call(yAxis)
 			.append("text")
 			.attr("transform", "rotate(-90)")
 			.attr("y", 6)
-			.attr("dy", ".71em")
+			.attr("dy", ".75em")
 			.style("text-anchor", "end")
-			.text("Passenger");
+			.text("Passenger Count");
 
 		//Board
 		svg.append("path")
@@ -542,28 +555,24 @@ function draw_graph() {
 			.attr("d", line2)
 			.style("stroke", "#D24367");
 
-		// svg.append("text")
-		// .datum(function(d) {
-		//  return {
-		//      name: d.name,
-		//      value: d.values[d.values.length - 1]
-		//  };
-		// })
-		// .attr("transform", function(d) {
-		//  return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")";
-		// })
-		// .attr("x", 3)
-		// .attr("dy", ".35em")
-		// .text(function(d) {
-		//  return d.name;
-		// });
+		var referenceLine = svg.append("svg:line")
+			.attr("x1", 0)
+			.attr("y1", 0)
+			.attr("x2", 0)
+			.attr("y2", 140)
+			.style("stroke", "rgb(6,120,155)");
+
+		function updateReferenceLine(now) {
+			referenceLine.attr("x1", x(now));
+			referenceLine.attr("x2", x(now));
+		}
+
+		feature2.updateReferenceLine = updateReferenceLine;
 	});
 }
 
 
-
 //Clock
-
 function draw_clock() {
 	canvas = Raphael("clock_id", 150, 150);
 	var clock = canvas.circle(75, 75, 70);
@@ -597,6 +606,7 @@ function draw_clock() {
 	pin.attr("fill", "#FFFFFF");
 }
 
+
 function update_clock(now) {
 	dev.time = feature2.time = new Date(now);
 
@@ -604,15 +614,25 @@ function update_clock(now) {
 		feature2.drawFrame();
 	}
 
-	var hours = now.getUTCHours() + 1;
+	feature2.updateReferenceLine(now);
+	$('#clock_string').html(formatTime(now))
+
+	var hours = now.getUTCHours() + 2;
 	var minutes = now.getMinutes();
 	hour_hand.transform("t0,0r" + (30 * hours + minutes * 0.5) + ",75,75");
 	minute_hand.transform("t0,0r" + (minutes * 6) + ",75,75");
+
+	function formatTime(now) {
+
+		offset = '+2'; //Geneva Timezone
+		utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+		nd = new Date(utc + (3600000 * offset));
+		return nd.toLocaleTimeString();
+	}
 }
 
 
 //=== Custom Marker Class ===//
-
 function CustomMarker(map, latlng, stopcode, height) {
 	this.height = height;
 	this.latlng_ = latlng;
@@ -637,7 +657,6 @@ CustomMarker.prototype.draw = function() {
 
 	// Check if the div has been created.
 	var div = this.div_;
-	// var img = this.img_;
 
 	var panes = this.getPanes();
 	var projection = this.getProjection();
@@ -647,6 +666,7 @@ CustomMarker.prototype.draw = function() {
 	if (!div) {
 		// Create a overlay text DIV
 		div = this.div_ = document.createElement('DIV');
+
 		// Create the DIV representing our CustomMarker
 		div.style.border = "none";
 		div.style.position = "absolute";
@@ -664,12 +684,12 @@ CustomMarker.prototype.draw = function() {
 		div.style.background = "#61ABD4";
 	}
 
-	div.style.height = (Math.floor(Math.abs(this.height) / 5) + 1) + 'px';
+	div.style.height = Math.sqrt(Math.abs(this.height)) * 5 + 'px';
 
 	// Position the overlay 
 	var point = projection.fromLatLngToDivPixel(this.latlng_);
 	if (point) {
 		div.style.left = point.x + 'px';
-		div.style.top = (point.y - (Math.floor(Math.abs(this.height) / 5) + 1)) + 'px';
+		div.style.top = (point.y - Math.sqrt(Math.abs(this.height)) * 5) + 'px';
 	}
 };
